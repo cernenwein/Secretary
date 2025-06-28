@@ -33,13 +33,13 @@ services:
     volumes:
       - ./volumes/shared_memory:/shared_memory
 
-  calendar:
-    build: ./services/calendar_service
-    container_name: diane-calendar
-    ports:
-      - "8080:8080"
-    volumes:
-      - ./volumes/shared_memory:/shared_memory
+  # calendar:
+  #   build: ./services/calendar_service
+  #   container_name: diane-calendar
+  #   ports:
+  #     - "8080:8080"
+  #   volumes:
+  #     - ./volumes/shared_memory:/shared_memory
 
   sms:
     build: ./services/sms_notifier
