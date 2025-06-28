@@ -2,8 +2,7 @@ version: "3.9"
 
 services:
   llm:
-    build:
-      context: ./services/llm_api
+    build: ./services/llm_api
     container_name: diane-llm
     ports:
       - "11434:11434"
@@ -12,46 +11,52 @@ services:
       - ./models:/models
     environment:
       - MODEL_FILENAME=mistral-7b-instruct.Q4_K_M.gguf
-    restart: unless-stopped
 
   voice:
-    build:
-      context: ./services/voice_control
+    build: ./services/voice_control
     container_name: diane-voice
-    depends_on:
-      - llm
+    depends_on: [llm]
     volumes:
       - ./volumes/shared_memory:/shared_memory
-    restart: unless-stopped
 
   planner:
-    build:
-      context: ./services/agent_planner
+    build: ./services/agent_planner
     container_name: diane-planner
-    depends_on:
-      - llm
+    depends_on: [llm]
     volumes:
       - ./volumes/shared_memory:/shared_memory
-    restart: unless-stopped
 
   tts:
-    build:
-      context: ./services/tts_speaker
+    build: ./services/tts_speaker
     container_name: diane-tts
-    depends_on:
-      - planner
+    depends_on: [planner]
     volumes:
       - ./volumes/shared_memory:/shared_memory
-    restart: unless-stopped
+
+  calendar:
+    build: ./services/calendar_service
+    container_name: diane-calendar
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./volumes/shared_memory:/shared_memory
+
+  sms:
+    build: ./services/sms_notifier
+    container_name: diane-sms
+    volumes:
+      - ./volumes/shared_memory:/shared_memory
+
+  docs:
+    build: ./services/doc_indexer
+    container_name: diane-docs
+    volumes:
+      - ./volumes/shared_memory:/shared_memory
 
   web:
-    build:
-      context: ./services/web_ui
+    build: ./services/web_ui
     container_name: diane-web
     ports:
       - "7860:7860"
-    depends_on:
-      - planner
     volumes:
       - ./volumes/shared_memory:/shared_memory
-    restart: unless-stopped
