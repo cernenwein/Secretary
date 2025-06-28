@@ -1,0 +1,57 @@
+version: "3.9"
+
+services:
+  llm:
+    build:
+      context: ./services/llm_api
+    container_name: diane-llm
+    ports:
+      - "11434:11434"
+    volumes:
+      - ./volumes/shared_memory:/shared_memory
+      - ./models:/models
+    environment:
+      - MODEL_FILENAME=mistral-7b-instruct.Q4_K_M.gguf
+    restart: unless-stopped
+
+  voice:
+    build:
+      context: ./services/voice_control
+    container_name: diane-voice
+    depends_on:
+      - llm
+    volumes:
+      - ./volumes/shared_memory:/shared_memory
+    restart: unless-stopped
+
+  planner:
+    build:
+      context: ./services/agent_planner
+    container_name: diane-planner
+    depends_on:
+      - llm
+    volumes:
+      - ./volumes/shared_memory:/shared_memory
+    restart: unless-stopped
+
+  tts:
+    build:
+      context: ./services/tts_speaker
+    container_name: diane-tts
+    depends_on:
+      - planner
+    volumes:
+      - ./volumes/shared_memory:/shared_memory
+    restart: unless-stopped
+
+  web:
+    build:
+      context: ./services/web_ui
+    container_name: diane-web
+    ports:
+      - "7860:7860"
+    depends_on:
+      - planner
+    volumes:
+      - ./volumes/shared_memory:/shared_memory
+    restart: unless-stopped
