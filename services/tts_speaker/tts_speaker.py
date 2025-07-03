@@ -16,10 +16,10 @@ print("🗣️ Piper TTS speaker loading...")
 with open(CONFIG_PATH, "r") as f:
     config = json.load(f)
 
-sample_rate = config["sample_rate"]
+sample_rate = config["audio"]["sample_rate"]
 session = ort.InferenceSession(VOICE_PATH)
 
-symbols = {c: i for i, c in enumerate(config["symbols"])}
+symbols = {k: v[0] for k, v in config["phoneme_id_map"].items()}
 silence_id = symbols.get("_", 0)
 
 def text_to_ids(text):
