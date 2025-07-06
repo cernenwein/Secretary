@@ -27,10 +27,17 @@ def text_to_ids(text):
 
 def synthesize(text):
     input_ids = np.array([text_to_ids(text)], dtype=np.int64)
-    ort_inputs = {"input": input_ids}
+    input_lengths = np.array([len(input_ids[0])], dtype=np.int64)
+    scales = np.array([0.667, 1.0, 0.8], dtype=np.float32)  # shape (3,)
+    ort_inputs = {
+        "input": input_ids,
+        "input_lengths": input_lengths,
+        "scales": scales
+    }
     ort_outs = session.run(None, ort_inputs)
     audio = ort_outs[0].squeeze().astype(np.float32)
     return audio
+
 
 def speak(text):
     print(f"📣 Speaking: {text}")
